@@ -8,15 +8,13 @@ type FrameId int
 
 type BufferPoolManager struct {
 	diskManager *storage.DiskManager
-	ClockReplacer *ClockReplacer // ClockReplacer is replacment policy (could be any other RP)
-	pages [MaxPoolSize] *storage.Page // pages is current collection of pages held by buffer pool
+	pages [MaxPoolSize]*storage.Page // pages is current collection of pages held by buffer pool
 	availableFrames []FrameId // availableFrames is available spots by frame's id for new pages to come into buffer pool 
 	pageTable map[storage.PageId]FrameId
 }
 
 func NewBufferPoolManager() *BufferPoolManager {
 	diskManager := new(storage.DiskManager)
-	ClockReplacer := new(ClockReplacer)
 	pageTable := make(map[storage.PageId]FrameId)
 	var availableFrames []FrameId
 	var pages [MaxPoolSize]*storage.Page
@@ -25,5 +23,5 @@ func NewBufferPoolManager() *BufferPoolManager {
 		availableFrames = append(availableFrames, FrameId(i))
 	}
 
-	return &BufferPoolManager{diskManager, ClockReplacer, pages, availableFrames, pageTable}
+	return &BufferPoolManager{diskManager, pages, availableFrames, pageTable}
 }
