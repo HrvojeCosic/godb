@@ -1,6 +1,8 @@
 package utils
 
-import "errors"
+import (
+	"errors"
+)
 
 type CircularList[T comparable] struct {
 	head     *CircularListNode[T]
@@ -21,11 +23,29 @@ func NewCircularList[T comparable](capacity uint) *CircularList[T] {
 	}
 }
 
+func (cl CircularList[T]) Head() *CircularListNode[T] {
+	return cl.head
+}
+
+func (node CircularListNode[T]) Value() T {
+	return node.value
+}
+
+func (list CircularList[T]) Next(current *CircularListNode[T]) *CircularListNode[T] {
+	if (list.size == 0) {
+		return nil
+	}
+	if (current.next == nil) {
+		return list.head // go around to beginning
+	}
+	return current.next
+}
+
 func (list CircularList[T]) Size() uint {
 	return list.size
 }
 
-func (list *CircularList[T]) insert(val T) (*CircularListNode[T], error) {
+func (list *CircularList[T]) Insert(val T) (*CircularListNode[T], error) {
 	if list.capacity == list.size {
 		return nil, errors.New("can not insert, list is at full capacity")
 	}
@@ -37,18 +57,18 @@ func (list *CircularList[T]) insert(val T) (*CircularListNode[T], error) {
 	return &node, nil
 }
 
-func (list *CircularList[T]) remove(node *CircularListNode[T]) {
+func (list *CircularList[T]) Remove(val T) {
 	if (list.head == nil) { return }
-	if (list.head.value == node.value) {
+	if (list.head.value == val) {
 		list.head = list.head.next
 		list.size--
 		return
 	}
 
-	current := list.head
+	current := list.head.next
 	previous := list.head
 	for i := 0; i < int(list.size); i++ {
-		if ((*node).value == (*current).value) {
+		if (val == (*current).value) {
 			previous.next = current.next
 			list.size--
 			break

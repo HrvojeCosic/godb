@@ -1,57 +1,57 @@
 package buffer
 
-import "github.com/HrvojeCosic/godb/src/storage"
+import (
+	"github.com/HrvojeCosic/godb/src/utils"
+)
 
 type ClockReplacer struct {
-	bufferPoolManager *BufferPoolManager
+	numPages uint                                // max number of pages ClockReplacer is able to store
+	frames     *utils.CircularList[FrameId]      // frames tracked by clock replacer as a circular list
+	frameTable map[FrameId]bool                  // mapping each frame in ClockReplacer to its reference bit
+	hand       *utils.CircularListNode[FrameId]  // current position of the clock hand
 }
 
-func (cr ClockReplacer) getBufferPoolManager() *BufferPoolManager {
-	return cr.bufferPoolManager
+func NewClockReplacer(capacity uint) *ClockReplacer {
+	return &ClockReplacer{
+		numPages: capacity,
+		frames: utils.NewCircularList[FrameId](capacity),
+		hand: nil,
+		frameTable: make(map[FrameId]bool),
+	}
 }
 
-func (cr *ClockReplacer) evict() bool {
-	pages := cr.bufferPoolManager.pages
-	hasEvicted := false
-	for pageIdx, page := range pages {
-		if page.PinCount() == 0 {
-			frameIdToEvict := cr.bufferPoolManager.pageTable[page.PageId()]
-			availableFrames := cr.bufferPoolManager.availableFrames
+func (cr *ClockReplacer) Evict() FrameId {
+	if (cr.frames.Size() == 0) {
+		return -1
+	}
+	if (cr.hand == nil) {
+		cr.hand = cr.frames.Head()
+	}
 
-			delete(cr.bufferPoolManager.pageTable, page.PageId()) // remove page table pair
- 
-			// TODO: FIX HACK (PAGE HAS ID OF -1, SO IT'S "EVICTED")
-			*(pages[pageIdx]) = *storage.NewPage(-1, [5]byte{0}, false, 1) // evict page from buffer pool
-
-			// mark corresponding frame as available
-			for _, frameId := range availableFrames {
-				if frameId == frameIdToEvict {
-					availableFrames = append(availableFrames, frameIdToEvict)
-				}
-			}
-
-			hasEvicted = true
-			break
+	for {
+		currFrameId := cr.hand.Value()
+		if (cr.frameTable[currFrameId] == false) {
+			cr.frames.Remove(currFrameId)
+			delete(cr.frameTable, currFrameId)
+			cr.hand = cr.frames.Next(cr.hand)
+			return currFrameId
 		} else {
-			page.SetPinCount(0)
-		}
-	}
-
-	return hasEvicted
-}
-
-func (cr *ClockReplacer) pin(pageId storage.PageId) {
-	for _, page := range cr.bufferPoolManager.pages {
-		if (page.PageId() == pageId) {
-			page.SetPinCount(1)
+			cr.frameTable[currFrameId] = false
+			cr.hand = cr.frames.Next(cr.hand)
 		}
 	}
 }
 
-func (cr *ClockReplacer) unpin(pageId storage.PageId) {
-	for _, page := range cr.bufferPoolManager.pages {
-		if (page.PageId() == pageId) {
-			page.SetPinCount(0)
-		}
-	}
+func (cr *ClockReplacer) Pin(frameId FrameId) {
+	cr.frames.Remove(frameId)
+	delete(cr.frameTable, frameId)
+}
+
+func (cr *ClockReplacer) Unpin(frameId FrameId) {
+	cr.frames.Insert(frameId)
+	cr.frameTable[frameId] = false
+}
+
+func (cr ClockReplacer) Size() uint {
+	return cr.frames.Size()
 }

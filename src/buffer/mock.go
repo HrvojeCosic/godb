@@ -1,8 +1,12 @@
 package buffer
 
-import "github.com/HrvojeCosic/godb/src/storage"
+import (
+	"sync"
 
-func mockBufferPoolManager() *BufferPoolManager {
+	"github.com/HrvojeCosic/godb/src/storage"
+)
+
+func mockBufferPoolManager(replacer Replacer) *BufferPoolManager {
 	pages := [MaxPoolSize]*storage.Page{}
 	pageTable := map[storage.PageId]FrameId{}
 	frames := make([]FrameId, MaxPoolSize)
@@ -14,5 +18,12 @@ func mockBufferPoolManager() *BufferPoolManager {
 		pageTable[pages[i].PageId()] = FrameId(MaxPoolSize - 1 - i)
 	}
 
-	return &BufferPoolManager{&storage.DiskManager{}, pages, frames, pageTable}
+	return &BufferPoolManager{
+		pages: pages,
+		diskManager: &storage.DiskManager{},
+		latch:  sync.Mutex{},
+		availableFrames: frames,
+		pageTable: pageTable,
+		replacer: replacer,
+	}
 }
