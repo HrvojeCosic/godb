@@ -22,7 +22,6 @@ func TestPinUnpin(t *testing.T) {
 	}
 }
 
-// TODO: TEST THREAD-SAFETY
 func TestEvict(t *testing.T) {
 	bpm := mockBufferPoolManager(NewClockReplacer(10))
 	for _, page := range bpm.pages {

@@ -1,6 +1,8 @@
 package buffer
 
 import (
+	"sync"
+
 	"github.com/HrvojeCosic/godb/src/utils"
 )
 
@@ -9,6 +11,7 @@ type ClockReplacer struct {
 	frames     *utils.CircularList[FrameId]      // frames tracked by clock replacer as a circular list
 	frameTable map[FrameId]bool                  // mapping each frame in ClockReplacer to its reference bit
 	hand       *utils.CircularListNode[FrameId]  // current position of the clock hand
+	latch      sync.RWMutex
 }
 
 func NewClockReplacer(capacity uint) *ClockReplacer {
@@ -17,10 +20,13 @@ func NewClockReplacer(capacity uint) *ClockReplacer {
 		frames: utils.NewCircularList[FrameId](capacity),
 		hand: nil,
 		frameTable: make(map[FrameId]bool),
+		latch: sync.RWMutex{},
 	}
 }
 
 func (cr *ClockReplacer) Evict() FrameId {
+	cr.latch.Lock()
+	defer cr.latch.Unlock()
 	if (cr.frames.Size() == 0) {
 		return -1
 	}
@@ -43,11 +49,15 @@ func (cr *ClockReplacer) Evict() FrameId {
 }
 
 func (cr *ClockReplacer) Pin(frameId FrameId) {
+	cr.latch.Lock()
+	defer cr.latch.Unlock()
 	cr.frames.Remove(frameId)
 	delete(cr.frameTable, frameId)
 }
 
 func (cr *ClockReplacer) Unpin(frameId FrameId) {
+	cr.latch.Lock()
+	defer cr.latch.Unlock()
 	_, err := cr.frames.Insert(frameId)
 	if (err != nil) {
 		return
@@ -55,6 +65,8 @@ func (cr *ClockReplacer) Unpin(frameId FrameId) {
 	cr.frameTable[frameId] = false
 }
 
-func (cr ClockReplacer) Size() uint {
+func (cr *ClockReplacer) Size() uint {
+	cr.latch.RLock()
+	defer cr.latch.RUnlock()
 	return cr.frames.Size()
 }
