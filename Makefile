@@ -1,7 +1,7 @@
 .PHONY: test
 
 test:
-	go test ./src/...
+	go test ./...
 
 lint:
 	golangci-lint run -E gocritic

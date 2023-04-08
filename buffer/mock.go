@@ -3,7 +3,7 @@ package buffer
 import (
 	"sync"
 
-	"github.com/HrvojeCosic/godb/src/storage"
+	"github.com/HrvojeCosic/godb/storage"
 )
 
 func mockBufferPoolManager(replacer Replacer) *BufferPoolManager {

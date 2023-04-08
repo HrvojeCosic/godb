@@ -3,7 +3,7 @@ package buffer
 import (
 	"sync"
 
-	"github.com/HrvojeCosic/godb/src/utils"
+	"github.com/HrvojeCosic/godb/utils"
 )
 
 type ClockReplacer struct {
