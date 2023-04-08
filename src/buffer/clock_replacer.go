@@ -30,7 +30,7 @@ func (cr *ClockReplacer) Evict() FrameId {
 
 	for {
 		currFrameId := cr.hand.Value()
-		if (cr.frameTable[currFrameId] == false) {
+		if (!cr.frameTable[currFrameId]) {
 			cr.frames.Remove(currFrameId)
 			delete(cr.frameTable, currFrameId)
 			cr.hand = cr.frames.Next(cr.hand)
@@ -48,7 +48,10 @@ func (cr *ClockReplacer) Pin(frameId FrameId) {
 }
 
 func (cr *ClockReplacer) Unpin(frameId FrameId) {
-	cr.frames.Insert(frameId)
+	_, err := cr.frames.Insert(frameId)
+	if (err != nil) {
+		return
+	}
 	cr.frameTable[frameId] = false
 }
 

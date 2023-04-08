@@ -68,12 +68,12 @@ func (list *CircularList[T]) Remove(val T) {
 	current := list.head.next
 	previous := list.head
 	for i := 0; i < int(list.size); i++ {
-		if (val == (*current).value) {
+		if (val == current.value) {
 			previous.next = current.next
 			list.size--
 			break
 		}
-		current = (*current).next
+		current = current.next
 		previous = current
 	}
 }

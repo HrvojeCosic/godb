@@ -8,7 +8,7 @@ func TestInsert(t *testing.T) {
 	list := NewCircularList[int](2)
 	
 	i1 := 9
-	list.Insert(i1)
+	list.Insert(i1) //nolint:all
 	if (list.size != 1) {
 		t.Errorf("Expected list size to be 1, but got %d", list.size)
 	}
@@ -17,13 +17,13 @@ func TestInsert(t *testing.T) {
 	}
 
 	i2 := 61
-	list.Insert(61)
+	list.Insert(61) //nolint:all
 	if (list.head.value != i2) {
 		t.Errorf("Expected last inserted value to be %d, but got %d", i2, list.head.value)
 	}
 
 	i3 := 981
-	list.Insert(i3)
+	list.Insert(i3) //nolint:all
 	if (list.size != 2) {
 		t.Error("Expected list to reject element after reaching max capacity")
 	}
