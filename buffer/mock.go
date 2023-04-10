@@ -20,7 +20,7 @@ func mockBufferPoolManager(replacer Replacer) *BufferPoolManager {
 
 	return &BufferPoolManager{
 		pages: pages,
-		diskManager: &storage.DiskManager{},
+		diskManager: storage.NewDiskManagerMock(),
 		latch:  sync.Mutex{},
 		availableFrames: frames,
 		pageTable: pageTable,

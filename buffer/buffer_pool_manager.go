@@ -15,7 +15,7 @@ type BufferPoolManager struct {
 	availableFrames []FrameId         		    // availableFrames is available spots by frame's id for new pages to come into buffer pool 
 	latch 	        sync.Mutex                  // latch protects the shared "pages"
 	pageTable 		map[storage.PageId]FrameId
-	diskManager 	*storage.DiskManager
+	diskManager 	storage.DiskManager
 	replacer 		Replacer
 }
 
@@ -28,7 +28,7 @@ func NewBufferPoolManager(replacer Replacer) *BufferPoolManager {
 	return &BufferPoolManager{
 		pages: [MaxPoolSize]*storage.Page{},
 		availableFrames: availableFrames,
-		diskManager: new(storage.DiskManager),
+		diskManager: storage.NewDiskManagerMock(),
 		replacer: NewClockReplacer(MaxPoolSize),
 		pageTable: make(map[storage.PageId]FrameId),
 		latch: sync.Mutex{},

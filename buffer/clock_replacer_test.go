@@ -11,7 +11,7 @@ func TestPinUnpin(t *testing.T) {
 		bpm.replacer.Unpin(correspondingFrame)
 	}
 	if (bpm.replacer.Size() != uint(len(bpm.pages))) {
-		t.Error("Expected replacer size to be 0 after unpinning all pages")
+		t.Error("Expected replacer size to be same as pages length after unpinning all pages")
 	}
 
 	bpm.replacer.Pin(2)
