@@ -7,8 +7,8 @@ type PageId int
 type Page struct {
 	id       PageId
 	data     [maxPageSize]byte
-	isDirty  bool
-	pinCount int
+	isDirty  bool // indicates if the page has been modified since fetched
+	pinCount int  // number of current page users
 }
 
 func NewPage(id PageId, data [maxPageSize]byte, isDirty bool, pinCount int) *Page {
