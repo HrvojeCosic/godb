@@ -25,6 +25,10 @@ func (p Page) PinCount() int {
 	return p.pinCount
 }
 
+func (p Page) IsDirty() bool {
+	return p.isDirty
+}
+
 func (p *Page) SetPinCount(pinCount int) {
 	p.pinCount = pinCount
 }

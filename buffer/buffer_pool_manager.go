@@ -58,6 +58,9 @@ func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, e
 	if (err != nil) {
 		return nil, err
 	}
+	if (bpm.pages[newFrameId] != nil && bpm.pages[newFrameId].IsDirty()) {
+		bpm.diskManager.WritePage(readPage)
+	}
 	bpm.pages[newFrameId] = readPage
 	bpm.pageTable[pageId] = newFrameId 
 	readPage.SetPinCount(readPage.PinCount() + 1)

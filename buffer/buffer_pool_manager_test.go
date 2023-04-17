@@ -9,9 +9,9 @@ import (
 func TestFetchPage(t *testing.T) {
 	replacer := NewClockReplacer(2)
 	bpm := NewBufferPoolManager(replacer)
-	bpm.diskManager.WritePage(1, storage.NewPage(1))
-	bpm.diskManager.WritePage(2, storage.NewPage(2))
-	bpm.diskManager.WritePage(3, storage.NewPage(3))
+	bpm.diskManager.WritePage(storage.NewPage(1))
+	bpm.diskManager.WritePage(storage.NewPage(2))
+	bpm.diskManager.WritePage(storage.NewPage(3))
 
 	// Test fetching with no pages in bpm
 	fid := storage.PageId(2)

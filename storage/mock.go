@@ -21,7 +21,7 @@ func (dm *DiskManagerMock) ReadPage(pageId PageId) (*Page, error) {
 	return nil, errors.New("requested page does not exist")
 }
 
-func (dm *DiskManagerMock) WritePage(pageId PageId, content *Page) bool {
-	dm.diskFile[pageId] = content
+func (dm *DiskManagerMock) WritePage(page *Page) bool {
+	dm.diskFile[page.PageId()] = page 
 	return true	
 }
