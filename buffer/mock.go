@@ -13,7 +13,7 @@ func mockBufferPoolManager(replacer Replacer) *BufferPoolManager {
 
 	// make page and frame indices reverse of each other
 	for i := 0; i < MaxPoolSize; i++ {
-		pages[i] = storage.NewPage(storage.PageId(i), [5]byte{0}, false, 1)
+		pages[i] = storage.NewPage(storage.PageId(i))
 		frames[i] = FrameId(MaxPoolSize - 1 - i)
 		pageTable[pages[i].PageId()] = FrameId(MaxPoolSize - 1 - i)
 	}

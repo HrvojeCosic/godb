@@ -1,7 +1,6 @@
 package buffer
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/HrvojeCosic/godb/storage"
@@ -23,7 +22,7 @@ type BufferPoolManager struct {
 func NewBufferPoolManager(replacer Replacer) *BufferPoolManager {
 	availableFrames := make([]FrameId, MaxPoolSize)
 	for i := 0; i < MaxPoolSize; i++ {
-		availableFrames = append(availableFrames, FrameId(i))
+		availableFrames[i] = FrameId(i)
 	}
 
 	return &BufferPoolManager{
@@ -37,7 +36,7 @@ func NewBufferPoolManager(replacer Replacer) *BufferPoolManager {
 }
 
 // Fetch the requested page from the buffer pool.
-func (bpm BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, error) {
+func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, error) {
 	bpm.latch.Lock()
 	defer bpm.latch.Unlock()
 
@@ -48,16 +47,19 @@ func (bpm BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, er
 		return page, nil
 	}
 
+	newFrameId := FrameId(-1)
 	if (len(bpm.availableFrames) == 0) {
-		readPage, err := bpm.diskManager.ReadPage(pageId)
-		if (err != nil) {
-			return nil, err
-		}
-		frameId := bpm.replacer.Evict()
-		bpm.pages[frameId] = readPage
-		bpm.pageTable[pageId] = frameId 
-		return readPage, nil
+		newFrameId = bpm.replacer.Evict()
+	} else {
+		newFrameId = bpm.availableFrames[0]	
+		bpm.availableFrames = bpm.availableFrames[1:]
 	}
-
-	return nil, errors.New("error fetching page")
+	readPage, err := bpm.diskManager.ReadPage(pageId)
+	if (err != nil) {
+		return nil, err
+	}
+	bpm.pages[newFrameId] = readPage
+	bpm.pageTable[pageId] = newFrameId 
+	readPage.SetPinCount(readPage.PinCount() + 1)
+	return readPage, nil
 }

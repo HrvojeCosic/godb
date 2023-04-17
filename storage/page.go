@@ -11,8 +11,14 @@ type Page struct {
 	pinCount int  // number of current page users
 }
 
-func NewPage(id PageId, data [maxPageSize]byte, isDirty bool, pinCount int) *Page {
-	return &Page{id, data, isDirty, pinCount}
+func NewPage(id PageId) *Page {
+	var data [maxPageSize]byte
+	return &Page{
+		id: id,
+		data: data,
+		isDirty: false,
+		pinCount: 0,
+	}
 }
 
 func (p Page) PinCount() int {
