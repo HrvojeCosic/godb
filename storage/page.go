@@ -7,7 +7,7 @@ type PageId int
 type Page struct {
 	id       PageId
 	data     [maxPageSize]byte
-	isDirty  bool // indicates if the page has been modified since fetched
+	IsDirty  bool // indicates if the page has been modified since fetched
 	pinCount int  // number of current page users
 }
 
@@ -16,17 +16,13 @@ func NewPage(id PageId) *Page {
 	return &Page{
 		id: id,
 		data: data,
-		isDirty: false,
+		IsDirty: false,
 		pinCount: 0,
 	}
 }
 
 func (p Page) PinCount() int {
 	return p.pinCount
-}
-
-func (p Page) IsDirty() bool {
-	return p.isDirty
 }
 
 func (p *Page) SetPinCount(pinCount int) {

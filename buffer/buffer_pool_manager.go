@@ -58,7 +58,7 @@ func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, e
 	if (err != nil) {
 		return nil, err
 	}
-	if (bpm.pages[newFrameId] != nil && bpm.pages[newFrameId].IsDirty()) {
+	if (bpm.pages[newFrameId] != nil && bpm.pages[newFrameId].IsDirty) {
 		bpm.diskManager.WritePage(readPage)
 	}
 	bpm.pages[newFrameId] = readPage
@@ -68,7 +68,8 @@ func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, e
 	return readPage, nil
 }
 
-// Unpin the page from the buffer pool. If requested page is not in buffer pool, or it's pin count is already 0, return false, otherwise true
+// Unpin the given page from the buffer pool. 
+// If requested page is not in buffer pool, or it's pin count is already 0, return false, otherwise true
 func (bpm *BufferPoolManager) UnpinPage(pageId storage.PageId) bool {
 	bpm.latch.Lock()
 	defer bpm.latch.Unlock()
@@ -82,3 +83,31 @@ func (bpm *BufferPoolManager) UnpinPage(pageId storage.PageId) bool {
 		return true
 	}
 }
+
+// Flush given page to disk, regardless of the dirty flag. 
+// If page could not be found in buffer pool, return false, true otherwise
+func (bpm *BufferPoolManager) FlushPage(pageId storage.PageId) bool {
+    bpm.latch.Lock()
+    defer bpm.latch.Unlock()
+
+    frameId, ok := bpm.pageTable[pageId]
+    if (!ok) {
+	return false
+    }
+
+    page := bpm.pages[frameId] 
+    bpm.diskManager.WritePage(page)
+    page.IsDirty = false
+    return true
+}
+
+// Flush all pages from buffer pool to disk
+func (bpm *BufferPoolManager) FlushAllPages() {
+    bpm.latch.Lock()
+    defer bpm.latch.Unlock()
+
+    for _, page := range bpm.pages {
+	bpm.diskManager.WritePage(page)	
+    }
+}
+
