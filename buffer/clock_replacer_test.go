@@ -7,7 +7,7 @@ import (
 func TestPinUnpin(t *testing.T) {
 	bpm := mockBufferPoolManager(NewClockReplacer(10))
 	for _, page := range bpm.pages {
-		correspondingFrame := bpm.pageTable[page.PageId()]
+		correspondingFrame := bpm.pageTable[page.Id]
 		bpm.replacer.Unpin(correspondingFrame)
 	}
 	if (bpm.replacer.Size() != uint(len(bpm.pages))) {
@@ -25,7 +25,7 @@ func TestPinUnpin(t *testing.T) {
 func TestEvict(t *testing.T) {
 	bpm := mockBufferPoolManager(NewClockReplacer(10))
 	for _, page := range bpm.pages {
-		correspondingFrame := bpm.pageTable[page.PageId()]
+		correspondingFrame := bpm.pageTable[page.Id]
 		bpm.replacer.Unpin(correspondingFrame)
 	}
 

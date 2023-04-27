@@ -15,7 +15,7 @@ func mockBufferPoolManager(replacer Replacer) *BufferPoolManager {
 	for i := 0; i < MaxPoolSize; i++ {
 		pages[i] = storage.NewPage(storage.PageId(i))
 		frames[i] = FrameId(MaxPoolSize - 1 - i)
-		pageTable[pages[i].PageId()] = FrameId(MaxPoolSize - 1 - i)
+		pageTable[pages[i].Id] = FrameId(MaxPoolSize - 1 - i)
 	}
 
 	return &BufferPoolManager{

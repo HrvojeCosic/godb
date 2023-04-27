@@ -22,6 +22,6 @@ func (dm *DiskManagerMock) ReadPage(pageId PageId) (*Page, error) {
 }
 
 func (dm *DiskManagerMock) WritePage(page *Page) bool {
-	dm.diskFile[page.PageId()] = page 
+	dm.diskFile[page.Id] = page 
 	return true	
 }

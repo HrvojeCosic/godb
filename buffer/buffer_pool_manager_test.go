@@ -16,22 +16,22 @@ func TestFetchPage(t *testing.T) {
 	// Test fetching with no pages in bpm
 	fid := storage.PageId(2)
 	page, _ := bpm.FetchPage(fid)
-	if (page.PageId() != fid) {
-		t.Errorf("Expected page id to be %d, but got %d", fid, page.PageId())
+	if (page.Id != fid) {
+		t.Errorf("Expected page id to be %d, but got %d", fid, page.Id)
 	}
 
 	// Test fetching page that is already in bpm
 	page1, _ := bpm.FetchPage(fid)
-	if (page1.PageId() != fid) {
-		t.Errorf("Expected page id to be %d, but got %d", fid, page.PageId())
+	if (page1.Id != fid) {
+		t.Errorf("Expected page id to be %d, but got %d", fid, page.Id)
 	}
 
 	// Test fetching when bpm is full
 	bpm.FetchPage(storage.PageId(3))
 	fid2 := storage.PageId(1)
 	page2, _ := bpm.FetchPage(fid2)
-	if (page2.PageId() != storage.PageId(1)) {
-		t.Errorf("Expected page id to be %d, but got %d", fid2, page2.PageId())
+	if (page2.Id != storage.PageId(1)) {
+		t.Errorf("Expected page id to be %d, but got %d", fid2, page2.Id)
 	}
 }
 
@@ -53,7 +53,7 @@ func TestUnpinPage(t *testing.T) {
 	
 	// Test unpinning already unpinned page
 	bpm.FetchPage(1)
-	np1.SetPinCount(0)
+	np1.PinCount = 0
 	ok1 := bpm.UnpinPage(1)
 	if (ok1) {
 		t.Errorf("Expected to return %t, but got %t", false, ok)
@@ -62,7 +62,7 @@ func TestUnpinPage(t *testing.T) {
 	// Test unpinning pinned page (FetchPage() also pins it)
 	bpm.FetchPage(3)
 	ok2 := bpm.UnpinPage(3)
-	if (!ok2 || np3.PinCount() != 0) {
-		t.Errorf("Expected to return %t and page pin count to be 0 when unpinning pinned page, but got %t and %d", true, ok2, np3.PinCount())
+	if (!ok2 || np3.PinCount != 0) {
+		t.Errorf("Expected to return %t and page pin count to be 0 when unpinning pinned page, but got %t and %d", true, ok2, np3.PinCount)
 	}
 }

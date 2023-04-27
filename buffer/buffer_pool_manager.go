@@ -42,7 +42,7 @@ func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, e
 	frameId, ok := bpm.pageTable[pageId]
 	if (ok) {
 		page := bpm.pages[frameId] 
-		page.SetPinCount(page.PinCount() + 1)
+		page.PinCount++
 		bpm.replacer.Pin(frameId)
 		return page, nil
 	}
@@ -63,7 +63,7 @@ func (bpm *BufferPoolManager) FetchPage(pageId storage.PageId) (*storage.Page, e
 	}
 	bpm.pages[newFrameId] = readPage
 	bpm.pageTable[pageId] = newFrameId 
-	readPage.SetPinCount(readPage.PinCount() + 1)
+	readPage.PinCount++
 	bpm.replacer.Pin(newFrameId)
 	return readPage, nil
 }
@@ -75,10 +75,10 @@ func (bpm *BufferPoolManager) UnpinPage(pageId storage.PageId) bool {
 	defer bpm.latch.Unlock()
 
 	frameId, ok := bpm.pageTable[pageId]
-	if (!ok || bpm.pages[frameId].PinCount() == 0) {
+	if (!ok || bpm.pages[frameId].PinCount == 0) {
 		return false
 	} else {
-		bpm.pages[frameId].SetPinCount(0)
+		bpm.pages[frameId].PinCount = 0
 		bpm.replacer.Unpin(frameId)
 		return true
 	}
@@ -108,6 +108,7 @@ func (bpm *BufferPoolManager) FlushAllPages() {
 
     for _, page := range bpm.pages {
 	bpm.diskManager.WritePage(page)	
+	page.IsDirty = false
     }
 }
 
